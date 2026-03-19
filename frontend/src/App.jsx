@@ -16,17 +16,16 @@ function App() {
 
 const connectPC=()=>{
   pc.current=new RTCPeerConnection()
-
-
-
   //bahut sari chize 
-
 }
 
   const sendOffer = async() => {
   connectPC()
    const offer=await pc.current.createOffer()
    await pc.current.setLocalDescription(offer)
+    console.log("offer. created !!")
+
+
 
    socket.emit("offer",{
     targetId:targetId,
@@ -69,6 +68,23 @@ const connectPC=()=>{
         },
       ]);
     });
+
+
+   socket.on("offer",async(data)=>{
+    connectPC()
+
+    await pc.current.setRemoteDescription(data.offer);
+    await pc.current.createAnswer()
+    console.log("answer created ")
+
+    // emit("answer",{
+    //   answer:answer,
+    //   targetId:targetID
+    // })
+
+    /// thoda orr 
+
+   })
   }, []);
 
   return (

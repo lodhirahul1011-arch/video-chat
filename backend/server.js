@@ -20,6 +20,10 @@ app.get("/health",(req,res)=>{
 
 io.on('connection', (socket) => {
   console.log('a clint connected',socket.id);
+
+
+
+
   socket.on("sender",(senderData)=>{
         const{targetId,message}=senderData
         console.log(targetId ,message)
@@ -29,10 +33,30 @@ io.on('connection', (socket) => {
         })
 
   })
+
+
   socket.on("offer",(data)=>{
+    
     io.to(data.targetId).emit("offer",{
         offer:data.offer,
-        targetId:targetId//snder id 
+        sender:socket.id
+    })
+  })
+
+
+  socket.on("answer",(data)=>{
+
+    io.to(data.targetId).emit("answer",{
+        answer:data.answer,
+        sender:socket.id
+    })
+  })
+  
+  socket.on("ice",(data)=>{
+
+    io.to(data.targetId).emit("ice",{
+        ice:data.ice,
+        sender:socket.id
     })
   })
 
