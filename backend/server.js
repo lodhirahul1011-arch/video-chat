@@ -70,6 +70,26 @@ connectionHandler(io)
   
 // });
 
-httpServer.listen(config.PORT,()=>{
-    console.log("server started ",config.PORT)
-})
+let currentPort = config.PORT;
+
+const startServer = (port) => {
+    currentPort = port;
+    httpServer.listen(port);
+};
+
+httpServer.on("listening", () => {
+    console.log("server started", currentPort);
+});
+
+httpServer.on("error", (error) => {
+    if (error.code === "EADDRINUSE") {
+        const nextPort = currentPort + 1;
+        console.log(`Port ${currentPort} is in use, retrying on ${nextPort}`);
+        startServer(nextPort);
+        return;
+    }
+
+    throw error;
+});
+
+startServer(currentPort);

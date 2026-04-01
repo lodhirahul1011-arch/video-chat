@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-const useChat = (socket) => {
+const useChat = (socket, currentUserName = "You") => {
   const [targetId, setTargetId] = useState("")
   const [message, setMessage] = useState("")
   const [allMessage, setAllMessage] = useState([])
@@ -42,6 +42,7 @@ const useChat = (socket) => {
           targetId: targetId,
           message: message,
           isOwn: true,
+          senderName: currentUserName,
         },
       ])
       

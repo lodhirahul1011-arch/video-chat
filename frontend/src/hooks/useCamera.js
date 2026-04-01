@@ -2,6 +2,8 @@ import { useState, useRef } from "react"
 
 const useCamera = () => {
   const [localVideoStream, setLocalVideoStream] = useState(null)
+  const [cameraError, setCameraError] = useState("")
+  const [isRequestingCamera, setIsRequestingCamera] = useState(false)
   const localVideoRef = useRef(null)
   
   // Camera access karne ka function
@@ -13,7 +15,13 @@ const useCamera = () => {
     }
     
     try {
+      setCameraError("")
+      setIsRequestingCamera(true)
       console.log("Requesting camera access...")
+
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error("Camera API is not available in this browser")
+      }
       
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: true, 
@@ -25,6 +33,7 @@ const useCamera = () => {
       // Video element me stream set karo
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream
+        await localVideoRef.current.play().catch(() => {})
       }
       
       // State update karo
@@ -33,8 +42,17 @@ const useCamera = () => {
       return stream
     } catch (error) {
       console.error("Camera access denied:", error)
-      alert("Video and audio access required for this app")
+      const messageMap = {
+        NotAllowedError: "Camera permission denied. Browser settings me camera allow karo.",
+        NotFoundError: "Camera device nahi mila. Camera connect karke try karo.",
+        NotReadableError: "Camera kisi aur app me busy hai. Dusri app band karke try karo.",
+        OverconstrainedError: "Requested camera settings supported nahi hain.",
+      }
+      const nextError = messageMap[error.name] || error.message || "Camera access failed"
+      setCameraError(nextError)
       throw error
+    } finally {
+      setIsRequestingCamera(false)
     }
   }
   
@@ -51,6 +69,7 @@ const useCamera = () => {
       
       // State clear karo
       setLocalVideoStream(null)
+      setCameraError("")
       
       // Video element clear karo
       if (localVideoRef.current) {
@@ -63,7 +82,9 @@ const useCamera = () => {
     localVideoStream, 
     localVideoRef, 
     getCamera, 
-    stopCamera 
+    stopCamera,
+    cameraError,
+    isRequestingCamera,
   }
 }
 
