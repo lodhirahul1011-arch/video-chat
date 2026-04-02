@@ -20,10 +20,7 @@ const app = express();
 // ✅ Allowed origins
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://clone-orpin-three.vercel.app",
-  "https://clone-pwmi24psg-fast-releases-projects.vercel.app",
-  "https://prdigitalcm.in",
-  "https://www.prdigitalcm.in",
+  "https://videochat-front.vercel.app/login", 
 ];
 
 // ✅ CORS configuration

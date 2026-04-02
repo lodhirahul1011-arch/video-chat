@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUserApi } from "../features/actions/AuthAction";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
@@ -7,7 +6,6 @@ import { useState } from "react";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const {
@@ -18,7 +16,7 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await dispatch(loginUserApi(data));
+      const res = await loginUserApi(data);
       if (res?.success) {
         localStorage.setItem("userName", data.email.split("@")[0] || "User");
         navigate("/user-dashboard");
