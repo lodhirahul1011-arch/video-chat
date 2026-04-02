@@ -5,10 +5,12 @@ import useChat from "./hooks/useChat"
 import useCamera from "./hooks/useCamera"
 import useWebRTC from "./hooks/useWebRTC"
 import { useNavigate } from "react-router-dom"
-import { LogOut } from "lucide-react"
+import { LogOut, Menu, X } from "lucide-react"
+import { useState } from "react"
 
 function App() {
   const navigate = useNavigate()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const handleLogout = () => {
     localStorage.removeItem("userEmail")
@@ -53,8 +55,21 @@ const currentUserName = localStorage.getItem("userName") || "You"
   
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      {/* Mobile overlay when sidebar open */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-full lg:w-56 bg-white border-b lg:border-b-0 lg:border-r border-gray-200 p-4 lg:p-6 flex flex-row lg:flex-col items-center lg:items-start gap-4 lg:gap-0">
+      <aside
+        className={`z-50 fixed inset-y-0 left-0 w-72 bg-white border-r border-gray-200 p-4 lg:p-6 flex flex-row lg:flex-col items-center lg:items-start gap-4 lg:gap-0 transition-transform duration-300 ease-in-out transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:static lg:translate-x-0 lg:w-56 lg:z-30`}
+      >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
             M
@@ -87,8 +102,7 @@ const currentUserName = localStorage.getItem("userName") || "You"
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
+      <main className="flex-1 flex flex-col overflow-hidden lg:ml-72">        {/* Top Bar */}
         <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
           <div className="flex-1">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Design Meeting</h1>
@@ -103,20 +117,29 @@ const currentUserName = localStorage.getItem("userName") || "You"
               )}
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-            {socketID && (
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(socketID)
-                  alert("Peer ID copied to clipboard!")
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-lg text-white rounded-lg text-sm font-medium transition-all"
-              >
-                Copy My ID
-              </button>
-            )}
-            <div className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
-              Administrator
+            <div className="flex items-center justify-between w-full md:w-auto">
+            <button
+              className="p-2 rounded-lg bg-gray-100 text-gray-700 lg:hidden"
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
+              aria-label="Toggle sidebar"
+            >
+              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              {socketID && (
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(socketID)
+                    alert("Peer ID copied to clipboard!")
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-lg text-white rounded-lg text-sm font-medium transition-all"
+                >
+                  Copy My ID
+                </button>
+              )}
+              <div className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
+                Administrator
+              </div>
             </div>
           </div>
         </header>
