@@ -1,13 +1,11 @@
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchRegisterApi } from "../features/actions/AuthAction";
 import { Mail, User, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const {
@@ -18,7 +16,7 @@ export default function Signup() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await dispatch(fetchRegisterApi(data));
+      const res = await fetchRegisterApi(data);
       if (res?.success) {
         localStorage.setItem("userName", data.fullName)
         navigate("/login")
