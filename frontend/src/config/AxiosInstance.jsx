@@ -11,7 +11,7 @@ const API_BASE_URL = rawApiUrl.replace(/\/+$/, "");
 
 // Create Axios Instance
 export const AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,        // -> e.g. https://videochat-backend-bs92.onrender.com
+  baseURL: API_BASE_URL,
 
   withCredentials: true,        // cookie bhejne/leneke liye IMPORTANT
   timeout: 30000,               // Render ke liye thoda zyada time

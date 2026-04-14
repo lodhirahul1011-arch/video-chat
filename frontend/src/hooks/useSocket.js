@@ -4,15 +4,21 @@ import { io } from "socket.io-client"
 let socketInstance = null
 let activeSocketUrl = ""
 
+const normalizeUrl = (value) => value?.trim().replace(/\/+$/, "")
+
 const socketUrls = (() => {
-  const configuredUrl = import.meta.env.VITE_SOCKET_URL?.trim()
-  const origin = window.location.origin
+  const configuredSocketUrl = normalizeUrl(import.meta.env.VITE_SOCKET_URL)
+  const apiUrl = normalizeUrl(import.meta.env.VITE_API_URL)
+  const backendUrl = normalizeUrl(import.meta.env.VITE_BACKEND_URL)
+  const origin = normalizeUrl(window.location.origin)
 
   return [
-    configuredUrl,
+    configuredSocketUrl,
+    apiUrl,
+    backendUrl,
+    origin,
     "http://localhost:9000",
     "http://localhost:9001",
-    origin,
   ].filter((value, index, list) => value && list.indexOf(value) === index)
 })()
 

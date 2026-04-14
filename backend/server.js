@@ -1,19 +1,53 @@
-const express =require("express")
-const  http =require("http")
-const config=require("./config/config")
-const { Server } = require('socket.io');
-const { connectionHandler } = require("./handlers/connectionHandler");
-const app=express()
+const express = require("express")
+const http = require("http")
+const cors = require("cors")
+const config = require("./config/config")
+const { Server } = require("socket.io")
+const { connectionHandler } = require("./handlers/connectionHandler")
 
-const httpServer=http.createServer(app)
-const io = new Server(httpServer,{
-    cors:{
-        origin:config.CORS_ORIGIN,
-        methods:config.CORS_METHODS
+const app = express()
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || config.CORS_ORIGIN.includes(origin)) {
+      callback(null, true)
+      return
     }
-});
 
+    callback(new Error(`Origin ${origin} is not allowed by CORS`))
+  },
+  methods: config.CORS_METHODS,
+  credentials: true,
+}
 
+app.use(cors(corsOptions))
+app.use(express.json())
+
+app.get("/", (_req, res) => {
+  res.json({
+    service: "video-chat-backend",
+    status: "ok",
+    allowedOrigins: config.CORS_ORIGIN,
+  })
+})
+
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" })
+})
+
+app.get("/api/room", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    data: {
+      message: "Socket server is ready",
+    },
+  })
+})
+
+const httpServer = http.createServer(app)
+const io = new Server(httpServer, {
+  cors: corsOptions,
+})
 
 connectionHandler(io)
 
