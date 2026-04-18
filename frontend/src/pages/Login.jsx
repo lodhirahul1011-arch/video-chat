@@ -1,68 +1,67 @@
-import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
-import { loginUserApi } from "../features/actions/AuthAction";
-import { Eye, EyeOff, Lock, User } from "lucide-react";
-import { useState } from "react";
+import { Eye, EyeOff, Lock, User } from "lucide-react"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { Link, useNavigate } from "react-router-dom"
+import { loginUserApi } from "../features/actions/AuthAction"
 
-export default function Login() {
-  const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
-
+function Login() {
+  const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm()
 
   const onSubmit = async (data) => {
     try {
-      const res = await loginUserApi(data);
-      if (res?.success) {
-        localStorage.setItem("userName", data.email.split("@")[0] || "User");
-        navigate("/user-dashboard");
-      } else alert("Invalid credentials");
-    } catch (e) {
-      console.error(e);
-      alert("Login failed");
+      const response = await loginUserApi(data)
+
+      if (response?.success) {
+        localStorage.setItem("userName", data.email.split("@")[0] || "User")
+        navigate("/user-dashboard")
+        return
+      }
+
+      alert("Invalid credentials")
+    } catch (error) {
+      console.error(error)
+      alert("Login failed")
     }
-  };
+  }
 
   const continueGuest = () => {
-    localStorage.setItem("userName", "Guest");
-    navigate("/user-dashboard");
-  };
+    localStorage.setItem("userName", "Guest")
+    navigate("/user-dashboard")
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#dbeafe_0%,#f8fafc_35%,#eef2ff_100%)] px-4 py-10">
       <div className="container-page">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-          {/* Left welcome */}
-          <div className="hidden lg:block glass p-10 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-60 pointer-events-none" />
-            <h1 className="text-5xl font-semibold tracking-tight">
-              Welcome<span className="text-neon">!</span>
-            </h1>
-            <p className="mt-4 text-[color:var(--muted)] max-w-md">
-              Sign in to access your dashboard, video calls, and manage your chats in one place.
-            </p>
-            <div className="mt-8">
-              <Link to="/" className="btn-ghost">
-                Learn more
-              </Link>
+        <div className="grid items-stretch gap-8 lg:grid-cols-2">
+          <div className="glass relative hidden overflow-hidden p-10 lg:block">
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(37,99,235,0.12),rgba(168,85,247,0.18))]" />
+            <div className="relative">
+              <h1 className="text-5xl font-semibold tracking-tight text-slate-900">
+                Welcome<span className="text-neon">.</span>
+              </h1>
+              <p className="mt-4 max-w-md text-[color:var(--muted)]">
+                Sign in to access your dashboard, video calls, chat console, and
+                delivery SMS workspace in one place.
+              </p>
             </div>
           </div>
 
-          {/* Right form */}
           <div className="glass p-8 md:p-10">
-            <h2 className="text-2xl font-semibold mb-1">Sign in</h2>
-            <p className="text-sm text-[color:var(--muted)] mb-6">
+            <h2 className="text-2xl font-semibold text-slate-900">Sign in</h2>
+            <p className="mt-1 text-sm text-[color:var(--muted)]">
               Use your email and password to continue.
             </p>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
               <div>
                 <div className="relative">
-                  <User className="h-4 w-4 absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--muted)] opacity-90" />
+                  <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--muted)]" />
                   <input
                     className="input-ui pl-11"
                     placeholder="Email"
@@ -71,23 +70,27 @@ export default function Login() {
                   />
                 </div>
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.email.message}
+                  </p>
                 )}
               </div>
 
               <div>
                 <div className="relative">
-                  <Lock className="h-4 w-4 absolute left-4 top-1/2 -translate-y-1/2 text-[color:var(--muted)] opacity-90" />
+                  <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--muted)]" />
                   <input
                     className="input-ui pl-11 pr-12"
                     placeholder="Password"
                     type={showPassword ? "text" : "password"}
-                    {...register("password", { required: "Password is required" })}
+                    {...register("password", {
+                      required: "Password is required",
+                    })}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-[color:var(--muted)] hover:text-[color:var(--text)] hover:bg-black/10 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50"
+                    onClick={() => setShowPassword((value) => !value)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[color:var(--muted)] transition-colors hover:bg-black/10 hover:text-[color:var(--text)]"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -98,7 +101,9 @@ export default function Login() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-400">{errors.password.message}</p>
+                  <p className="mt-1 text-sm text-red-500">
+                    {errors.password.message}
+                  </p>
                 )}
               </div>
 
@@ -107,9 +112,7 @@ export default function Login() {
               </button>
 
               <div className="flex items-center justify-between text-sm text-[color:var(--muted)]">
-                <Link to="/forgot-password" className="hover:text-[color:var(--text)]">
-                  Forgot password?
-                </Link>
+                <span>Demo auth is enabled for this build.</span>
                 <Link to="/signup" className="hover:text-[color:var(--text)]">
                   Create account
                 </Link>
@@ -117,26 +120,21 @@ export default function Login() {
             </form>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={continueGuest}
-                className="btn-ghost w-full"
-              >
+              <button type="button" onClick={continueGuest} className="btn-ghost w-full">
                 Continue as Guest
               </button>
-              <a
-                href="/signup"
-                className="text-center py-2 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-700 font-semibold"
+              <Link
+                to="/signup"
+                className="rounded-lg bg-violet-100 py-2 text-center font-semibold text-violet-700 transition hover:bg-violet-200"
               >
                 Signup
-              </a>
-            </div>
-            <div className="mt-3 text-xs text-[color:var(--muted)]">
-              By continuing you agree to our Terms & Privacy Policy.
+              </Link>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
+
+export default Login

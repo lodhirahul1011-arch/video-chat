@@ -1,42 +1,55 @@
-import React from 'react'
-import { Send, Network } from 'lucide-react'
+import { Radio, Send } from "lucide-react"
 
-function ChatInput({targetId,setTargetId,message,setMessage,sendMessage,sendOffer}) {
-    return (
-        <div className="p-4 bg-white border-t border-gray-200 rounded-b-2xl shadow-inner">
-            <div className="flex items-center gap-2 mb-3">
-                <input
-                    type="text"
-                    placeholder="Enter peer ID..."
-                    value={targetId}
-                    onChange={(e) => setTargetId(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-sm"
-                />
-                <button
-                    onClick={sendOffer}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-                >
-                    Connect
-                </button>
-            </div>
+function ChatInput({
+  targetId,
+  setTargetId,
+  message,
+  setMessage,
+  sendMessage,
+  sendOffer,
+}) {
+  return (
+    <div className="space-y-3 border-t border-slate-200 bg-white p-4">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <input
+          type="text"
+          placeholder="Enter peer ID..."
+          value={targetId}
+          onChange={(event) => setTargetId(event.target.value)}
+          className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+        />
+        <button
+          onClick={sendOffer}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          <Radio size={16} />
+          Connect
+        </button>
+      </div>
 
-            <div className="flex items-center gap-2">
-                <input
-                    type="text"
-                    placeholder="Type a message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-sm"
-                />
-                <button
-                    onClick={sendMessage}
-                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:shadow-xl transition flex items-center gap-2"
-                >
-                    <Send size={16} /> Send
-                </button>
-            </div>
-        </div>
-    )
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={message}
+          onChange={(event) => setMessage(event.target.value)}
+          className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              sendMessage()
+            }
+          }}
+        />
+        <button
+          onClick={sendMessage}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-200 transition hover:brightness-105"
+        >
+          <Send size={16} />
+          Send
+        </button>
+      </div>
+    </div>
+  )
 }
 
 export default ChatInput

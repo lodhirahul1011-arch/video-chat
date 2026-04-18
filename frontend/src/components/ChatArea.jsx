@@ -1,48 +1,99 @@
-import React, { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from "react"
 
-function ChatArea({allMessage, currentUserName}) {
+function ChatArea({ allMessage, currentUserName }) {
   const listRef = useRef(null)
 
   useEffect(() => {
-    const el = listRef.current
-    if (el) {
-      el.scrollTop = el.scrollHeight
+    const element = listRef.current
+
+    if (element) {
+      element.scrollTop = element.scrollHeight
     }
   }, [allMessage])
 
   const nameMapping = useMemo(() => {
     const map = {}
     let nextId = 1
+
     if (allMessage) {
       allMessage.forEach((msg) => {
-        if (msg.isOwn) return
-        const senderKey = msg.receiverData?.sender || msg.receiverData?.senderId || msg.senderName || `bot-${nextId}`
+        if (msg.isOwn) {
+          return
+        }
+
+        const senderKey =
+          msg.receiverData?.sender ||
+          msg.receiverData?.senderId ||
+          msg.senderName ||
+          `peer-${nextId}`
+
         if (!map[senderKey]) {
-          map[senderKey] = msg.receiverData?.senderName || msg.receiverData?.sender || `User ${nextId}`
+          map[senderKey] =
+            msg.receiverData?.senderName ||
+            msg.receiverData?.sender ||
+            `User ${nextId}`
           nextId += 1
         }
       })
     }
+
     return map
   }, [allMessage])
 
   return (
-    <div ref={listRef} className="flex-1 overflow-y-auto p-2 bg-[#E5E5EA] max-h-[calc(100vh-300px)]">
+    <div
+      ref={listRef}
+      className="flex-1 space-y-3 overflow-y-auto bg-[linear-gradient(180deg,#f9fbff_0%,#eef3ff_100%)] p-4"
+    >
       {allMessage && allMessage.length > 0 ? (
-        allMessage.map((msg, index) => (
-          <div key={index} className={`mb-1 flex ${msg.isOwn ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] px-3 py-2.5 relative ${msg.isOwn ? 'bg-[#0084ff] text-white rounded-bl-2xl rounded-tl-2xl rounded-tr-2xl' : 'bg-white text-gray-800 rounded-br-2xl rounded-tr-2xl rounded-tl-2xl border border-gray-200'}`}>
-              <div className="text-[0.68rem] font-semibold mb-1 opacity-80">
-              {msg.isOwn ? (currentUserName || 'You') : (nameMapping[msg.receiverData?.sender || msg.receiverData?.senderId || msg.senderName] || msg.receiverData?.sender || msg.receiverData?.senderName || 'User')}
+        allMessage.map((msg, index) => {
+          const senderKey =
+            msg.receiverData?.sender ||
+            msg.receiverData?.senderId ||
+            msg.senderName
+
+          return (
+            <div
+              key={`${senderKey || "self"}-${index}`}
+              className={`flex ${msg.isOwn ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-3xl px-4 py-3 shadow-sm ${
+                  msg.isOwn
+                    ? "rounded-br-md bg-gradient-to-r from-blue-600 to-indigo-500 text-white"
+                    : "rounded-bl-md border border-slate-200 bg-white text-slate-800"
+                }`}
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-75">
+                  {msg.isOwn
+                    ? currentUserName || "You"
+                    : nameMapping[senderKey] ||
+                      msg.receiverData?.senderName ||
+                      msg.receiverData?.sender ||
+                      "User"}
+                </p>
+                <p className="mt-1 text-sm leading-6 break-words">
+                  {msg.message || msg.receiverData?.message}
+                </p>
+                <p
+                  className={`mt-2 text-[11px] ${
+                    msg.isOwn ? "text-blue-100" : "text-slate-400"
+                  }`}
+                >
+                  {msg.time || "now"}
+                </p>
+              </div>
             </div>
-              <div className="text-sm leading-5 break-words">{msg.message || msg.receiverData?.message}</div>
-              <div className={`absolute text-[0.6rem] ${msg.isOwn ? 'bottom-[-14px] right-0 text-white/70' : 'bottom-[-14px] left-0 text-gray-500'}`}>{msg.time || 'now'}</div>
-            </div>
-          </div>
-        ))
+          )
+        })
       ) : (
-        <div className="h-full flex items-center justify-center text-gray-500">
-          <p>No messages yet. Send the first message!</p>
+        <div className="flex h-full min-h-52 items-center justify-center">
+          <div className="rounded-3xl border border-dashed border-slate-200 bg-white/80 px-6 py-8 text-center">
+            <p className="text-base font-semibold text-slate-700">No messages yet</p>
+            <p className="mt-1 text-sm text-slate-400">
+              Peer ID connect karo aur pehla message bhejo.
+            </p>
+          </div>
         </div>
       )}
     </div>

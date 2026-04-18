@@ -1,9 +1,14 @@
+const { loadEnv } = require("./lib/loadEnv")
+
+loadEnv()
+
 const express = require("express")
 const http = require("http")
 const cors = require("cors")
 const config = require("./config/config")
 const { Server } = require("socket.io")
 const { connectionHandler } = require("./handlers/connectionHandler")
+const deliveryApiRouter = require("./routes/deliveryApi.routes")
 
 const app = express()
 
@@ -22,12 +27,38 @@ const corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json())
+app.use(express.text({ type: "text/plain" }))
+app.use((req, res, next) => {
+  if (typeof req.body !== "string") {
+    next()
+    return
+  }
+
+  const rawBody = req.body.trim()
+  if (!rawBody) {
+    req.body = {}
+    next()
+    return
+  }
+
+  try {
+    req.body = JSON.parse(rawBody)
+    next()
+  } catch {
+    res.status(400).json({
+      error: "Invalid JSON payload",
+    })
+  }
+})
+
+app.use("/delivery-api", deliveryApiRouter)
 
 app.get("/", (_req, res) => {
   res.json({
     service: "video-chat-backend",
     status: "ok",
     allowedOrigins: config.CORS_ORIGIN,
+    deliveryApi: "/delivery-api",
   })
 })
 

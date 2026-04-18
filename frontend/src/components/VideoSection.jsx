@@ -1,37 +1,41 @@
-import React from 'react'
-import LocalVideo from './LocalVideo'
-import RemoteVideo from './RemoteVideo'
+import LocalVideo from "./LocalVideo"
+import RemoteVideo from "./RemoteVideo"
 
-const VideoSection = ({
+function VideoSection({
   localVideoRef,
   remoteVideoRef,
   localVideoStream,
   cameraError,
   isRequestingCamera,
   onEnableCamera,
-}) => {
+}) {
   return (
-    <div className="h-full flex flex-col bg-gray-900 rounded-2xl overflow-hidden relative">
-      <div className="flex-1 relative flex items-center justify-center">
-        <RemoteVideo remoteVideoRef={remoteVideoRef}/>
-        <LocalVideo localVideoRef={localVideoRef}/>
+    <div className="relative flex h-full min-h-[26rem] flex-col overflow-hidden rounded-[32px] bg-slate-950">
+      <div className="relative flex-1">
+        <RemoteVideo remoteVideoRef={remoteVideoRef} />
+        <LocalVideo localVideoRef={localVideoRef} />
 
         {!localVideoStream && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-20">
-            <div className="max-w-sm text-center px-6">
-              <div className="text-white text-lg font-semibold">Camera is off</div>
-              <div className="text-gray-300 text-sm mt-2">
-                Enable camera to show your local preview and start video calling.
-              </div>
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/55 p-6 backdrop-blur-sm">
+            <div className="max-w-md rounded-[28px] border border-white/10 bg-white/10 p-8 text-center text-white shadow-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-blue-200">
+                Camera
+              </p>
+              <h3 className="mt-3 text-2xl font-semibold">Camera is off</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-200">
+                Enable camera to preview your stream and begin video calling.
+              </p>
+
               <button
                 onClick={onEnableCamera}
                 disabled={isRequestingCamera}
-                className="mt-5 px-5 py-3 bg-white text-gray-900 rounded-lg font-semibold hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                className="mt-6 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isRequestingCamera ? "Requesting access..." : "Enable Camera"}
               </button>
+
               {cameraError && (
-                <div className="mt-3 text-sm text-red-300">{cameraError}</div>
+                <p className="mt-4 text-sm text-red-200">{cameraError}</p>
               )}
             </div>
           </div>

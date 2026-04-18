@@ -1,99 +1,163 @@
-import ChatSection from "./components/ChatSection"
-import VideoSection from "./components/VideoSection"
-import useSocket from "./hooks/useSocket"
-import useChat from "./hooks/useChat"
-import useCamera from "./hooks/useCamera"
-import useWebRTC from "./hooks/useWebRTC"
-import { useNavigate } from "react-router-dom"
-import { LogOut, Menu, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import {
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  MessageSquareText,
+  Sparkles,
+  Video,
+  X,
+} from "lucide-react"
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
+
+const navigationItems = [
+  {
+    to: "/user-dashboard",
+    label: "Dashboard",
+    description: "Video room and live chat",
+    icon: LayoutDashboard,
+    match: (pathname) => pathname === "/user-dashboard",
+  },
+  {
+    to: "/user-dashboard/sms",
+    label: "SMS Tool",
+    description: "Delivery notification panel",
+    icon: MessageSquareText,
+    match: (pathname) => pathname.startsWith("/user-dashboard/sms"),
+  },
+]
 
 function App() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  const currentUserName = localStorage.getItem("userName") || "Guest"
+  const currentSection =
+    useMemo(
+      () =>
+        navigationItems.find((item) => item.match(location.pathname)) ??
+        navigationItems[0],
+      [location.pathname]
+    )
+
+  useEffect(() => {
+    setIsSidebarOpen(false)
+  }, [location.pathname])
 
   const handleLogout = () => {
     localStorage.removeItem("userEmail")
+    localStorage.removeItem("userName")
     navigate("/login")
   }
 
-  // Custom hooks use karo - sab logic hooks me hai
-  const { socketID, socket } = useSocket()
-  
-const currentUserName = localStorage.getItem("userName") || "You"
-
-  const {
-    targetId, 
-    setTargetId, 
-    message, 
-    setMessage, 
-    allMessage, 
-    sendMessage 
-  } = useChat(socket, currentUserName)
-  
-  const { 
-    localVideoStream, 
-    localVideoRef, 
-    getCamera,
-    cameraError,
-    isRequestingCamera,
-  } = useCamera()
-  
-  const { 
-    remoteVideoRef, 
-    sendOffer 
-  } = useWebRTC(socket, localVideoStream, getCamera)
-  
-  // Offer send karne ka wrapper function
-  const handleSendOffer = () => {
-    if (targetId) {
-      sendOffer(targetId)
-    } else {
-      alert("Please enter target ID first")
-    }
-  }
-  
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
-      {/* Mobile overlay when sidebar open */}
+    <div className="min-h-screen bg-[#f4f7fb] text-slate-900">
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-[2px] lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
       <aside
-        className={`z-50 fixed inset-y-0 left-0 w-72 bg-white border-r border-gray-200 p-4 lg:p-6 flex flex-row lg:flex-col items-center lg:items-start gap-4 lg:gap-0 transition-transform duration-300 ease-in-out transform ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-80 max-w-[86vw] flex-col border-r border-slate-200 bg-white/95 px-5 py-6 shadow-2xl shadow-slate-200/70 backdrop-blur transition-transform duration-300 lg:w-72 lg:translate-x-0 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:static lg:translate-x-0 lg:w-56 lg:z-30`}
+        }`}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-            M
-          </div>
-          <span className="text-xl font-bold text-gray-900">motox</span>
-        </div>
-        <nav className="space-y-2 flex-1 w-full">
-          <div className="px-3 py-2 rounded-lg bg-gray-100 text-gray-900 font-medium cursor-pointer text-center lg:text-left">Dashboard</div>
-          <div className="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer text-center lg:text-left">Conferences</div>
-          <div className="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer text-center lg:text-left">Calendar</div>
-          <div className="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer text-center lg:text-left">Settings</div>
-        </nav>
-        <div className="border-t lg:border-t-0 border-gray-200 lg:mt-auto w-full pt-4">
-          <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Insights</h4>
-          <div className="space-y-2">
-            <div className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer">Inbox</div>
-            <div className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer">Notifications</div>
-            <div className="text-sm text-gray-600 hover:text-gray-900 cursor-pointer">Comments</div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-500 to-cyan-400 text-white shadow-lg shadow-blue-200">
+              <Video size={20} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blue-500">
+                Workspace
+              </p>
+              <h1 className="text-lg font-bold text-slate-900">Motox Hub</h1>
+            </div>
           </div>
 
-          {/* Logout Button */}
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(false)}
+            className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+            aria-label="Close sidebar"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mt-8 rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-600 text-white">
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">
+                Welcome back, {currentUserName}
+              </p>
+              <p className="text-xs text-slate-500">
+                Manage calls and SMS tools from one place.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <nav className="mt-8 space-y-2">
+          {navigationItems.map((item) => {
+            const Icon = item.icon
+
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === "/user-dashboard"}
+                className={({ isActive }) =>
+                  `group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all ${
+                    isActive
+                      ? "border-blue-200 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100"
+                      : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-900"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-colors ${
+                        isActive
+                          ? "bg-blue-600 text-white"
+                          : "bg-slate-100 text-slate-500 group-hover:bg-white"
+                      }`}
+                    >
+                      <Icon size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">{item.label}</p>
+                      <p className="text-xs text-slate-500">{item.description}</p>
+                    </div>
+                  </>
+                )}
+              </NavLink>
+            )
+          })}
+        </nav>
+
+        <div className="mt-auto rounded-3xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+            Active Section
+          </p>
+          <p className="mt-2 text-base font-semibold text-slate-900">
+            {currentSection.label}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            {currentSection.description}
+          </p>
+
           <button
             onClick={handleLogout}
-            className="w-full mt-6 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 border border-red-200 hover:border-red-300"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition-colors hover:bg-red-100"
           >
             <LogOut size={16} />
             Logout
@@ -101,96 +165,48 @@ const currentUserName = localStorage.getItem("userName") || "You"
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden lg:ml-72">        {/* Top Bar */}
-        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-          <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Design Meeting</h1>
-            <div className="text-sm text-gray-600 mt-2 flex flex-wrap items-center gap-2">
-              <span>Your Peer ID:</span>
-              {socketID ? (
-                <span className="font-mono font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-lg text-xs sm:text-sm">
-                  {socketID}
-                </span>
-              ) : (
-                <span className="text-gray-400 italic">Connecting...</span>
-              )}
+      <main className="min-h-screen lg:ml-72">
+        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur">
+          <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen((prev) => !prev)}
+                className="rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm lg:hidden"
+                aria-label="Toggle navigation"
+              >
+                <Menu size={18} />
+              </button>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-blue-500">
+                  Motox Control
+                </p>
+                <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">
+                  {currentSection.label}
+                </h2>
+              </div>
             </div>
-          </div>
-            <div className="flex items-center justify-between w-full md:w-auto">
-            <button
-              className="p-2 rounded-lg bg-gray-100 text-gray-700 lg:hidden"
-              onClick={() => setIsSidebarOpen((prev) => !prev)}
-              aria-label="Toggle sidebar"
-            >
-              {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-              {socketID && (
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(socketID)
-                    alert("Peer ID copied to clipboard!")
-                  }}
-                  className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-lg text-white rounded-lg text-sm font-medium transition-all"
-                >
-                  Copy My ID
-                </button>
-              )}
-              <div className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium text-center">
-                Administrator
+
+            <div className="flex items-center gap-3">
+              <div className="hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2 text-right sm:block">
+                <p className="text-xs font-medium uppercase tracking-[0.22em] text-slate-400">
+                  Signed in
+                </p>
+                <p className="text-sm font-semibold text-slate-900">
+                  {currentUserName}
+                </p>
+              </div>
+
+              <div className="rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700 ring-1 ring-green-100">
+                Live workspace
               </div>
             </div>
           </div>
         </header>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-auto">
-          <div className="p-8 space-y-6">
-            {/* Video & Chat Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[20rem]">
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-                <VideoSection
-                  localVideoRef={localVideoRef}
-                  remoteVideoRef={remoteVideoRef}
-                  localVideoStream={localVideoStream}
-                  cameraError={cameraError}
-                  isRequestingCamera={isRequestingCamera}
-                  onEnableCamera={getCamera}
-                />
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">                <ChatSection
-                  socketID={socketID}
-                  allMessage={allMessage}
-                  targetId={targetId}
-                  setTargetId={setTargetId}
-                  message={message}
-                  setMessage={setMessage}
-                  sendMessage={sendMessage}
-                  sendOffer={handleSendOffer}
-                  currentUserName={currentUserName}
-                />
-              </div>
-            </div>
-
-            {/* Status Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">                <div className="text-sm font-medium text-gray-600">Next meetings</div>
-                <div className="mt-2 text-lg font-bold text-gray-900">9:10 - 10:40 am</div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <div className="text-sm font-medium text-gray-600">AI assistant</div>
-                <div className="mt-2 text-lg font-bold text-gray-900">Ready</div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-                <div className="text-sm font-medium text-gray-600">Whiteboard</div>
-                <div className="mt-2 text-lg font-bold text-gray-900">Live</div>
-              </div>
-            </div>
-          </div>
+        <div className="min-h-[calc(100vh-81px)]">
+          <Outlet />
         </div>
       </main>
     </div>
